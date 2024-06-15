@@ -1,8 +1,12 @@
 using Data.Context;
 using Data.Repository;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Manager.Implementation.Manager;
 using Manager.Interfaces.Managers;
 using Manager.Interfaces.Repositories;
+using Manager.Mappings;
+using Manager.Validators;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,18 +15,27 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+    //.AddFluentValidation(v => v.RegisterValidatorsFromAssemblyContaining<ManTaskValidator>());
 
 
-//inject dependency
+// dependency injection
 builder.Services.AddScoped<IManTaskRepository, ManTaskRepository>();
 builder.Services.AddScoped<IManTaskManager, ManTaskManager>();
 
-//ADD FOR ME CONTEXT ACCESS TO DONNES PROJECT MYSQL
 //add access datacontext
 builder.Services.AddDbContextPool<MyContext>(
     c => c.UseMySql(builder.Configuration.GetConnectionString("ConnLocal"),
      ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("ConnLocal")))
 );
+
+// validations
+builder.Services
+    .AddValidatorsFromAssemblyContaining(typeof(NewManTaskValidator))
+    .AddFluentValidationAutoValidation()
+    .AddFluentValidationClientsideAdapters();
+
+// mapper
+builder.Services.AddAutoMapper(typeof(NewManTaskMappingProfile));
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
