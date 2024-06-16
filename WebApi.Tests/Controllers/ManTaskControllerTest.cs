@@ -12,17 +12,17 @@ namespace WebApi.Tests.Controllers
 {
     public class ManTaskControllerTest
     {
-        private readonly IManTaskManager _manager;
-        private readonly ManTaskController _controller;
+        private readonly IManTaskManager _manTaskManager;
+        private readonly ManTaskController _manTaskController;
 
         private readonly ManTaskView _manTaskView;
         private readonly List<ManTaskView> _listManTaskView;
         private readonly NewManTask _newManTask;
         public ManTaskControllerTest()
         {
-            _manager = Substitute.For<IManTaskManager>();
+            _manTaskManager = Substitute.For<IManTaskManager>();
 
-            _controller = new ManTaskController(_manager);
+            _manTaskController = new ManTaskController(_manTaskManager);
 
             _manTaskView = new ManTaskViewFaker().Generate();
 
@@ -36,11 +36,11 @@ namespace WebApi.Tests.Controllers
         {
             var controle = new List<ManTaskView>();
             _listManTaskView.ForEach(p => controle.Add(p.TypedClone()));
-            _manager.GetAllManTasksAsync().Returns(_listManTaskView);
+            _manTaskManager.GetAllManTasksAsync().Returns(_listManTaskView);
 
-            var result = (ObjectResult)await _controller.Get();
+            var result = (ObjectResult)await _manTaskController.Get();
 
-            await _manager.Received().GetAllManTasksAsync();
+            await _manTaskManager.Received().GetAllManTasksAsync();
             result.StatusCode.Should().Be(StatusCodes.Status200OK);
             result.Value.Should().BeEquivalentTo(controle);
         }
@@ -48,23 +48,23 @@ namespace WebApi.Tests.Controllers
         [Fact]
         public async Task Get_NotFound()
         {
-            _manager.GetAllManTasksAsync().Returns(new List<ManTaskView>());
+            _manTaskManager.GetAllManTasksAsync().Returns(new List<ManTaskView>());
 
-            var result = (StatusCodeResult)await _controller.Get();
+            var result = (StatusCodeResult)await _manTaskController.Get();
 
-            await _manager.Received().GetAllManTasksAsync();
+            await _manTaskManager.Received().GetAllManTasksAsync();
             result.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         }
 
         [Fact]
         public async Task GetById_Ok()
         {
-            _manager.GetManTaskByIdAsync(Arg.Any<int>()).Returns(_manTaskView.TypedClone());
+            _manTaskManager.GetManTaskByIdAsync(Arg.Any<int>()).Returns(_manTaskView.TypedClone());
 
 
-            var result = (ObjectResult)await _controller.Get(_manTaskView.Id);
+            var result = (ObjectResult)await _manTaskController.Get(_manTaskView.Id);
 
-            await _manager.Received().GetManTaskByIdAsync(Arg.Any<int>());
+            await _manTaskManager.Received().GetManTaskByIdAsync(Arg.Any<int>());
             result.Value.Should().BeEquivalentTo(_manTaskView);
             result.StatusCode.Should().Be(StatusCodes.Status200OK);
         }
@@ -72,22 +72,22 @@ namespace WebApi.Tests.Controllers
         [Fact]
         public async Task GetById_NotFound()
         {
-            _manager.GetManTaskByIdAsync(Arg.Any<int>()).Returns(new ManTaskView());
+            _manTaskManager.GetManTaskByIdAsync(Arg.Any<int>()).Returns(new ManTaskView());
             
-            var result = (StatusCodeResult)await _controller.Get(1);
+            var result = (StatusCodeResult)await _manTaskController.Get(1);
 
-            await _manager.Received().GetManTaskByIdAsync(Arg.Any<int>());
+            await _manTaskManager.Received().GetManTaskByIdAsync(Arg.Any<int>());
             result.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         }
 
         [Fact]
         public async Task Post_Created()
         {
-            _manager.InsertManTaskAsync(Arg.Any<NewManTask>()).Returns(_manTaskView.TypedClone());
+            _manTaskManager.InsertManTaskAsync(Arg.Any<NewManTask>()).Returns(_manTaskView.TypedClone());
 
-            var result = (ObjectResult)await _controller.Post(_newManTask);
+            var result = (ObjectResult)await _manTaskController.Post(_newManTask);
 
-            await _manager.Received().InsertManTaskAsync(Arg.Any<NewManTask>());
+            await _manTaskManager.Received().InsertManTaskAsync(Arg.Any<NewManTask>());
             result.StatusCode.Should().Be(StatusCodes.Status201Created);
             result.Value.Should().BeEquivalentTo(_manTaskView);
         }
@@ -95,11 +95,11 @@ namespace WebApi.Tests.Controllers
         [Fact]
         public async Task Put_Ok()
         {
-            _manager.UpdateManTaskAsync(Arg.Any<UpdateManTask>()).Returns(_manTaskView.TypedClone());
+            _manTaskManager.UpdateManTaskAsync(Arg.Any<UpdateManTask>()).Returns(_manTaskView.TypedClone());
 
-            var result = (ObjectResult)await _controller.Put(new UpdateManTask());
+            var result = (ObjectResult)await _manTaskController.Put(new UpdateManTask());
 
-            await _manager.Received().UpdateManTaskAsync(Arg.Any<UpdateManTask>());
+            await _manTaskManager.Received().UpdateManTaskAsync(Arg.Any<UpdateManTask>());
             result.StatusCode.Should().Be(StatusCodes.Status200OK);
             result.Value.Should().BeEquivalentTo(_manTaskView);
         }
@@ -107,33 +107,33 @@ namespace WebApi.Tests.Controllers
         [Fact]
         public async Task Put_NotFound()
         {
-            _manager.UpdateManTaskAsync(Arg.Any<UpdateManTask>()).ReturnsNull();
+            _manTaskManager.UpdateManTaskAsync(Arg.Any<UpdateManTask>()).ReturnsNull();
 
-            var result = (StatusCodeResult)await _controller.Put(new UpdateManTask());
+            var result = (StatusCodeResult)await _manTaskController.Put(new UpdateManTask());
 
-            await _manager.Received().UpdateManTaskAsync(Arg.Any<UpdateManTask>());
+            await _manTaskManager.Received().UpdateManTaskAsync(Arg.Any<UpdateManTask>());
             result.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         }
 
         [Fact]
         public async Task Delete_NoContent()
         {
-            _manager.DeleteManTaskAsync(Arg.Any<int>()).Returns(_manTaskView);
+            _manTaskManager.DeleteManTaskAsync(Arg.Any<int>()).Returns(_manTaskView);
 
-            var result = (StatusCodeResult)await _controller.Delete(1);
+            var result = (StatusCodeResult)await _manTaskController.Delete(1);
 
-            await _manager.Received().DeleteManTaskAsync(Arg.Any<int>());
+            await _manTaskManager.Received().DeleteManTaskAsync(Arg.Any<int>());
             result.StatusCode.Should().Be(StatusCodes.Status204NoContent);
         }
 
         [Fact]
         public async Task Delete_NotFound()
         {
-            _manager.DeleteManTaskAsync(Arg.Any<int>()).ReturnsNull();
+            _manTaskManager.DeleteManTaskAsync(Arg.Any<int>()).ReturnsNull();
 
-            var result = (StatusCodeResult)await _controller.Delete(1);
+            var result = (StatusCodeResult)await _manTaskController.Delete(1);
 
-            await _manager.Received().DeleteManTaskAsync(Arg.Any<int>());
+            await _manTaskManager.Received().DeleteManTaskAsync(Arg.Any<int>());
             result.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         }
     }
