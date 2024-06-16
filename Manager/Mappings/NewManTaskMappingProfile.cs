@@ -9,7 +9,7 @@ namespace Manager.Mappings
         public NewManTaskMappingProfile()
         {
             CreateMap<NewManTask, ManTask>();
-            CreateMap<ManTask, NewManTask>();
+            CreateMap<ManTask, ManTaskView>();
         }
     }
 }

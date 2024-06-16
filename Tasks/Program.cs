@@ -35,7 +35,7 @@ builder.Services
     .AddFluentValidationClientsideAdapters();
 
 // mapper
-builder.Services.AddAutoMapper(typeof(NewManTaskMappingProfile));
+builder.Services.AddAutoMapper(typeof(NewManTaskMappingProfile), typeof(UpdateManTaskMappingProfile));
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
