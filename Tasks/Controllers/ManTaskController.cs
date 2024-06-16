@@ -6,7 +6,7 @@ namespace Tasks.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ManTaskController: ControllerBase
+    public class ManTaskController : ControllerBase
     {
         private readonly IManTaskManager _manTaskManager;
 
@@ -29,7 +29,7 @@ namespace Tasks.Controllers
             }
             return NotFound();
         }
-        
+
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(ManTaskView), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -44,7 +44,7 @@ namespace Tasks.Controllers
             }
             return Ok(manTaskFinded);
         }
-        
+
         [HttpPost]
         [ProducesResponseType(typeof(ManTaskView), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
@@ -53,7 +53,7 @@ namespace Tasks.Controllers
         {
             var manTaskAdded = await _manTaskManager.InsertManTaskAsync(newManTask);
             if (manTaskAdded == null) { return NotFound(); }
-            return CreatedAtAction(nameof(Get), new {id = manTaskAdded.Id}, manTaskAdded);
+            return CreatedAtAction(nameof(Get), new { id = manTaskAdded.Id }, manTaskAdded);
         }
 
         [HttpPut]
@@ -62,9 +62,11 @@ namespace Tasks.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Put(UpdateManTask updateManTask)
         {
-            var manTaskFinded = await _manTaskManager.GetManTaskByIdAsync(updateManTask.Id);
-            if (manTaskFinded == null) {return NotFound();}
             var manTaskUpdated = await _manTaskManager.UpdateManTaskAsync(updateManTask);
+            if (manTaskUpdated == null)
+            {
+                return NotFound();
+            }
             return Ok(manTaskUpdated);
         }
 
@@ -72,13 +74,14 @@ namespace Tasks.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Delete(int id) 
+        public async Task<IActionResult> Delete(int id)
         {
-            var manTaskExcluded = await _manTaskManager.GetManTaskByIdAsync(id);
-            if (manTaskExcluded == null) {return NotFound();}
-            await _manTaskManager.DeleteManTaskAsync(id);
+            var manTaskExcluded = await _manTaskManager.DeleteManTaskAsync(id);
+            if (manTaskExcluded == null)
+            {
+                return NotFound();
+            }
             return NoContent();
-
         }
     }
 }

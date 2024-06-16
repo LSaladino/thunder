@@ -4,6 +4,7 @@ using Manager.Interfaces.Managers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
+using NSubstitute.ReturnsExtensions;
 using Shared.Modelviews.ManTask;
 using Tasks.Controllers;
 
@@ -89,6 +90,51 @@ namespace WebApi.Tests.Controllers
             await _manager.Received().InsertManTaskAsync(Arg.Any<NewManTask>());
             result.StatusCode.Should().Be(StatusCodes.Status201Created);
             result.Value.Should().BeEquivalentTo(_manTaskView);
+        }
+
+        [Fact]
+        public async Task Put_Ok()
+        {
+            _manager.UpdateManTaskAsync(Arg.Any<UpdateManTask>()).Returns(_manTaskView.TypedClone());
+
+            var result = (ObjectResult)await _controller.Put(new UpdateManTask());
+
+            await _manager.Received().UpdateManTaskAsync(Arg.Any<UpdateManTask>());
+            result.StatusCode.Should().Be(StatusCodes.Status200OK);
+            result.Value.Should().BeEquivalentTo(_manTaskView);
+        }
+
+        [Fact]
+        public async Task Put_NotFound()
+        {
+            _manager.UpdateManTaskAsync(Arg.Any<UpdateManTask>()).ReturnsNull();
+
+            var result = (StatusCodeResult)await _controller.Put(new UpdateManTask());
+
+            await _manager.Received().UpdateManTaskAsync(Arg.Any<UpdateManTask>());
+            result.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        }
+
+        [Fact]
+        public async Task Delete_NoContent()
+        {
+            _manager.DeleteManTaskAsync(Arg.Any<int>()).Returns(_manTaskView);
+
+            var result = (StatusCodeResult)await _controller.Delete(1);
+
+            await _manager.Received().DeleteManTaskAsync(Arg.Any<int>());
+            result.StatusCode.Should().Be(StatusCodes.Status204NoContent);
+        }
+
+        [Fact]
+        public async Task Delete_NotFound()
+        {
+            _manager.DeleteManTaskAsync(Arg.Any<int>()).ReturnsNull();
+
+            var result = (StatusCodeResult)await _controller.Delete(1);
+
+            await _manager.Received().DeleteManTaskAsync(Arg.Any<int>());
+            result.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         }
     }
 }
