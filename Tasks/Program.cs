@@ -15,8 +15,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
-    //.AddFluentValidation(v => v.RegisterValidatorsFromAssemblyContaining<ManTaskValidator>());
-
 
 // dependency injection
 builder.Services.AddScoped<IManTaskRepository, ManTaskRepository>();
