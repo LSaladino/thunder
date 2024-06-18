@@ -13,6 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 // Add services to the container.
+var conn = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddControllers();
 
@@ -21,10 +22,13 @@ builder.Services.AddScoped<IManTaskRepository, ManTaskRepository>();
 builder.Services.AddScoped<IManTaskManager, ManTaskManager>();
 
 //add access datacontext
-builder.Services.AddDbContextPool<MyContext>(
-    c => c.UseMySql(builder.Configuration.GetConnectionString("ConnLocal"),
-     ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("ConnLocal")))
-);
+//builder.Services.AddDbContextPool<MyContext>(
+//    c => c.UseMySql(builder.Configuration.GetConnectionString("ConnLocal"),
+//     ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("ConnLocal")))
+//);
+
+builder.Services.AddDbContext<MyContext>(c => c.UseNpgsql(conn));
+
 
 // validations
 builder.Services
@@ -42,7 +46,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-app.UseCors(c => c.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+//app.UseCors(c => c.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -51,7 +55,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
