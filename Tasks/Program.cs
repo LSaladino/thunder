@@ -7,6 +7,7 @@ using Manager.Interfaces.Managers;
 using Manager.Interfaces.Repositories;
 using Manager.Mappings;
 using Manager.Validators;
+using ManTask.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -47,6 +48,9 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 //app.UseCors(c => c.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+
+// auto migration for me
+DatabaseManagementService.MigrationAuto(app);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
